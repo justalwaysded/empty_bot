@@ -17,10 +17,18 @@ const bot = new Client({ intents })
 bot.commands = new Collection()
 bot.commands.any = [];
 
-fs.readdirSync('./commands').forEach(module => {
-  const commandFiles = fs.readdirSync(`./commands/${module}/`).filter(file => file.endsWith('.js'));
+fs.readdirSync('./commands').forEach(dir => {
+  const fullPath = path.join('./commands', dir);
+
+  // пропускаем файлы (например .DS_Store)
+  if (!fs.statSync(fullPath).isDirectory()) return;
+
+  const commandFiles = fs
+    .readdirSync(fullPath)
+    .filter(f => f.endsWith(".js"));
+
   for (const file of commandFiles) {
-    const command = require(path.join(__dirname, 'commands', module, file));
+    const command = require(path.join(__dirname, 'commands', dir, file));
     command.category = module;
     command.names.forEach(el => {
       bot.commands.set(el.toLowerCase(), command)

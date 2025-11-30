@@ -1,28 +1,60 @@
 const fs = require("fs");
 const path = require("path");
-const axios = require("axios");
+const https = require("https");
+const { MessageEmbed } = require("discord.js")
 
-module.exports = async (bot, msg, args, argsF, MessageEmbed) => {
-    if (!msg.reference) {return msg.reply("Ответьте командой на сообщение с файлом формата `.gif`, `.png`, `.jpg`, `.jpeg` или `.webp`")};
+module.exports = async (bot, ctx, args, argsF) => {
+   const reply = ctx.reference
+    ? await ctx.channel.messages.fetch(ctx.reference.messageId).catch(() => null)
+    : null;
        
-    const referenced = await msg.channel.messages.fetch(msg.reference.messageId);
+    if (!reply) { return ctx.reply("Ответь на соощение с картинкой, что бы добавить мем.")};
+
+    const attachment = reply.attachments.first();
+    if(!attachment) { return ctx.reply("В ответном сообщении нет вложений.")};
     
-    if (!referenced.attachments.size) {return msg.reply("В вашем сообщении нет файла.")};
+    const url = attachment.url;
+    const extMatch = url.match(/\.(png|jpe?g|gif|webp)$/i);
 
-    const file = referenced.attachments.first();
-    const allowed = [".gif", ".png", ".jpg", ".jpeg", ".webp"];
-    const ext = path.extname(file.name).toLowerCase();
-    
-    if (!allowed.includes(ext)) { return msg.reply("Я принимаю только картинки и гифки.")};
+    if (!extMatch) { return ctx.reply("Поддерживаются только картинки png, jpg, jpeg, gid, webp.")};
 
-    const materialsPath = path.resolve(__dirname, "../../materials");
-    const savePath = path.join(materialsPath, file.name);
+    const ext = extMatch[1].toLowercase(); //преобразование 1-го символа расширения в lowercase.
+    const memesDir = path.join(__dirname, "../../materials");
 
-    const response = await axios.get(file.url, { responseType: "arraybuffer" });
+    if(!fs.existsSync(memesDir)) {fs.mkdirSync(memesDir, { recursive: true })};
 
-    fs.writeFileSync(savePath, response.data);
+    const fileName = `${Date.now()}_${ctx.author.id}.${ext}`;
+    const filePath = path.join(memesDir, fileName);
 
-    return msg.reply(`Мем сохранён как **${file.name}**.`)
+    try {
+        await downloadFile(url, filePath);
+        await ctx.reply("Мем успешно добавлен в каталог.")
+    } catch (err) {
+        console.error(err);
+        await ctx.reply("Не удалось сохранить мем.")
+    }
 };
 
-module.exports.names = ["add-meme", "add_meme", "добавить-мем", "добавить_мем"];
+function downloadFile(url, dest) {
+    return new Promise((resolve, reject) => {
+        const file = fs.createWriteStream(dest);
+        https
+            .get(url, (res) => {
+                if (res.statusCode !== 200) {
+                    file.close();
+                    fs.unlink(dest, () => {});
+                    return reject(new Error(`HTTP status ${res.statusCode}`));
+                }
+                res.pipe(file);
+                file.on("finish", () => file.close(resolve));
+            })
+            .on("error", (err) => {
+                file.close();
+                fs.unlink(dest, () => {});
+                reject(err);
+            })
+    })
+}
+
+module.exports.names = ["add-meme", "add_meme", "addmeme", "добавить-мем", "добавить_мем"];
+module.exports.description = ['Добавляет мем в каталог по реплаю (ответу) на сообщение с картинкой.']
