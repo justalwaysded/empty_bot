@@ -1,5 +1,6 @@
-module.exports = async (bot, ctx, args, argsF, MessageEmbed) => {
-  
+const { MessageEmbed } = require("discord.js");
+module.exports = async (bot, ctx, args, argsF) => {
+
 };
 
 module.exports.names = ["help", "хелп"];

@@ -1,6 +1,6 @@
-const fs = require("fs")
-const path = require("path")
-const { MessageEmbed } = require("discord.js")
+const fs = require("fs");
+const path = require("path");
+const { MessageEmbed } = require("discord.js");
 
 module.exports = async (bot, ctx, args, argsF) => {
 
@@ -8,7 +8,7 @@ module.exports = async (bot, ctx, args, argsF) => {
 
     if (!fs.existsSync(memesDir)) { return ctx.reply("Папка с мемами не найдена") };
 
-    const files = fs.readdirSync(memesDir).filter((file) => 
+    const files = fs.readdirSync(memesDir).filter((file) =>
         /\.(png|jpe?g|gif|webp)$/i.test(file)
     );
 

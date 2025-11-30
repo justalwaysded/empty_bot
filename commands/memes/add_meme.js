@@ -1,27 +1,27 @@
 const fs = require("fs");
 const path = require("path");
 const https = require("https");
-const { MessageEmbed } = require("discord.js")
+const { MessageEmbed } = require("discord.js");
 
 module.exports = async (bot, ctx, args, argsF) => {
-   const reply = ctx.reference
-    ? await ctx.channel.messages.fetch(ctx.reference.messageId).catch(() => null)
-    : null;
-       
-    if (!reply) { return ctx.reply("Ответь на соощение с картинкой, что бы добавить мем.")};
+    const reply = ctx.reference
+        ? await ctx.channel.messages.fetch(ctx.reference.messageId).catch(() => null)
+        : null;
+
+    if (!reply) { return ctx.reply("Ответь на соощение с картинкой, что бы добавить мем.") };
 
     const attachment = reply.attachments.first();
-    if(!attachment) { return ctx.reply("В ответном сообщении нет вложений.")};
-    
+    if (!attachment) { return ctx.reply("В ответном сообщении нет вложений.") };
+
     const url = attachment.url;
     const extMatch = url.match(/\.(png|jpe?g|gif|webp)$/i);
 
-    if (!extMatch) { return ctx.reply("Поддерживаются только картинки png, jpg, jpeg, gid, webp.")};
+    if (!extMatch) { return ctx.reply("Поддерживаются только картинки png, jpg, jpeg, gid, webp.") };
 
     const ext = extMatch[1].toLowercase(); //преобразование 1-го символа расширения в lowercase.
     const memesDir = path.join(__dirname, "../../materials");
 
-    if(!fs.existsSync(memesDir)) {fs.mkdirSync(memesDir, { recursive: true })};
+    if (!fs.existsSync(memesDir)) { fs.mkdirSync(memesDir, { recursive: true }) };
 
     const fileName = `${Date.now()}_${ctx.author.id}.${ext}`;
     const filePath = path.join(memesDir, fileName);
@@ -42,7 +42,7 @@ function downloadFile(url, dest) {
             .get(url, (res) => {
                 if (res.statusCode !== 200) {
                     file.close();
-                    fs.unlink(dest, () => {});
+                    fs.unlink(dest, () => { });
                     return reject(new Error(`HTTP status ${res.statusCode}`));
                 }
                 res.pipe(file);
@@ -50,7 +50,7 @@ function downloadFile(url, dest) {
             })
             .on("error", (err) => {
                 file.close();
-                fs.unlink(dest, () => {});
+                fs.unlink(dest, () => { });
                 reject(err);
             })
     })

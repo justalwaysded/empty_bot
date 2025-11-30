@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js")
+const { MessageEmbed } = require("discord.js");
 module.exports = async (bot, ctx, args, argsF) => {
     const num = Math.floor(Math.random() * 100) + 1;
 
@@ -6,7 +6,7 @@ module.exports = async (bot, ctx, args, argsF) => {
         .setTitle("Случайное число")
         .setDescription(`Ты выкрутил: **${num}**`)
         .setTimestamp()
-        .setFooter({ text: ctx.author.tag, iconURL: ctx.author.displayAvatarURL ({ dynamic: true }) });
+        .setFooter({ text: ctx.author.tag, iconURL: ctx.author.displayAvatarURL({ dynamic: true }) });
 
     await ctx.reply({ embeds: [embed] });
 };

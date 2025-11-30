@@ -6,11 +6,11 @@ module.exports = async (bot, ctx, args, argsF) => {
         (args[0] && ctx.guild.members.cache.get(args[0])) ||
         ctx.member;
 
-    if (!member) { return ctx.reply("Не могу найти такого пользователя.")}
+    if (!member) { return ctx.reply("Не могу найти такого пользователя.") }
 
     const roles =
         members.roles.cache
-            .filter ((r) => r.id !== ctx.guild.id)
+            .filter((r) => r.id !== ctx.guild.id)
             .map((r) => r.toString())
             .join(", ") || "Нет ролей";
 
